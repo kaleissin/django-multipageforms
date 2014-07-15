@@ -1,0 +1,10 @@
+*~
+*.egg-info
+*.pyc
+*.pyo
+*.sqlite
+.coverage
+.tox
+htmlcov
+dist
+src/demo-media
