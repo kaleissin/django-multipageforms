@@ -1,0 +1,6 @@
+{% extends 'demoapp/base.html' %}
+{% block content %}
+<form action="/multiform/" method="post">
+    {% csrf_token %}
+    <input type="submit" value="New Multiform" /></form>
+{% endblock content %}
