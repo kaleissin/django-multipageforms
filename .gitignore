@@ -3,6 +3,7 @@
 *.pyc
 *.pyo
 *.sqlite
+.*.swp
 .coverage
 .tox
 htmlcov
