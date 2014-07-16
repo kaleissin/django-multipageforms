@@ -1,6 +1,9 @@
 {% extends 'demoapp/base.html' %}
 {% block content %}
 <h1>Edit form</h1>
+<nav>
+<p><b>Form</b> <a href="preview/">Preview</a></p>
+</nav>
 <p>Valid page: {{ form.is_valid }}</p>
 <h2>Preview</h2>
 <h3>{{ form.is_valid }} {{ form.slug }}</h3>
@@ -16,5 +19,4 @@
 {{ form.as_table }}
 <input type="submit">
 </form>
-<p><b>Form</b> <a href="preview/">Preview</a></p>
 {% endblock content %}
