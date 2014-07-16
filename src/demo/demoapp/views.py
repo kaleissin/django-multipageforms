@@ -4,6 +4,7 @@ import json
 
 from django import forms
 from django.views.generic import TemplateView, FormView, DetailView, UpdateView
+from django.views.generic.edit import FormMixin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.http import QueryDict
@@ -11,8 +12,10 @@ from django.forms.fields import FileField
 from django.utils.datastructures import MultiValueDict
 
 from multipageforms.forms.multiform import MultiForm
+from multipageforms.forms.multipageform import MultiPageForm
 from multipageforms.views.generic import FieldFileMapperMixin
 from multipageforms.views.generic import UpdateMultiFormView
+from multipageforms.views.generic import UpdateMultiPageFormView
 
 from demo.demoapp.models import FormStorage, FileStorage, Person
 
@@ -78,20 +81,57 @@ class MultiFormView(DemoFileMapperMixin, UpdateMultiFormView):
         obj = self.get_object()
         return '/multiform/%i/preview/' % obj.pk
 
-class PreviewMultiFormView(DemoFileMapperMixin, DetailView):
+class PreviewMultiFormView(DemoFileMapperMixin, FormMixin, DetailView):
     template_name = 'demoapp/preview_multiform.html'
+    model = FormStorage
+    form_class = DemoMultiForm
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(PreviewMultiFormView, self).get_context_data(**kwargs)
+        form_kwargs = self.get_form_kwargs()
+        kwargs['form'] = self.form_class(**form_kwargs)
+        return kwargs
+
+class DemoMultiPageForm(MultiPageForm):
+    class Page1MultiForm(MultiForm):
+        slug = 'page1'
+        formclasses = (TextForm, IntegerForm)
+    class Page2MultiForm(MultiForm):
+        slug = 'page2'
+        formclasses = (BooleanForm, OptionalTextForm)
+    class Page3MultiForm(MultiForm):
+        slug = 'page3'
+        formclasses = (FileForm, OptionalFileForm)
+    pages = (Page1MultiForm, Page2MultiForm, Page3MultiForm)
+
+class CreateMultiPageFormView(TemplateView):
+    form_class = DemoMultiPageForm
+
+    def post(self, request, *args, **kwargs):
+        mpf = self.form_class()
+        first_page = mpf.first_page().slug
+        formstorage = FormStorage.objects.create(storage='{}')
+        url = '/multipageform/%i/%s' % (formstorage.pk, first_page)
+        return HttpResponseRedirect(url)
+
+class MultiPageFormView(DemoFileMapperMixin, UpdateMultiPageFormView):
+    template_name = 'demoapp/multipageform.html'
+    form_class = DemoMultiPageForm
+    model = FormStorage
+
+    def get_success_url(self):
+        obj = self.get_object()
+        page = self.get_form_class()
+        return '/multipageform/%i/%s/' % (obj.pk, page.slug)
+
+class PreviewMultiPageFormView(DemoFileMapperMixin, FormMixin, DetailView):
+    template_name = 'demoapp/preview_multipageform.html'
+    form_class = DemoMultiPageForm
     model = FormStorage
 
     def get_context_data(self, **kwargs):
-        form_kwargs = {}
-        data = QueryDict('', mutable=True)
-        data.update(json.loads(self.get_object().storage))
-        form_kwargs['data'] = data
-        files = self.load_filefield_from_file(DemoMultiForm())
-        if files:
-            form_kwargs['files'] = files
-        form = DemoMultiForm(**form_kwargs)
-        kwargs = super(PreviewMultiFormView, self).get_context_data(**kwargs)
-        kwargs['form'] = form
+        kwargs = super(PreviewMultiPageFormView, self).get_context_data(**kwargs)
+        form_kwargs = self.get_form_kwargs()
+        kwargs['pages'] = self.form_class(**form_kwargs)
+        kwargs['pageslug'] = 'preview'
         return kwargs
-

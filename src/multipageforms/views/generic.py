@@ -6,7 +6,18 @@ from django.views.generic import UpdateView
 from django.http import QueryDict
 from django.utils.datastructures import MultiValueDict
 
+def serialize(simple_object):
+    return json.dumps(simple_object)
+
+def unserialize(serialized_object):
+    return json.loads(serialized_object)
+
 class NoopFileMapperMixin(object):
+
+    def strip_csrftoken(self, data):
+        if 'csrfmiddlewaretoken' in data:
+            data.pop('csrfmiddlewaretoken')
+        return data
 
     def get_files_from_field(self, fieldname):
         return ()
@@ -14,13 +25,22 @@ class NoopFileMapperMixin(object):
     def upload_files_to_field(self, fileobj, field, instance=None):
         return None
 
-    def load_filefield_from_file(self, form):
+    def load_filefield_from_file(self):
         return None
 
-    def save_filefield_to_file(self, form):
+    def save_filefield_to_file(self):
         return None
 
-class FieldFileMapperMixin(object):
+    def load_files(self):
+        return None
+
+    def load_data(self):
+        return None
+
+    def save(self, form):
+        pass
+
+class FieldFileMapperMixin(NoopFileMapperMixin):
     """
     filemodel: Model with one file field
     filefield: the field on the model that holds the file
@@ -38,26 +58,63 @@ class FieldFileMapperMixin(object):
     def upload_files_to_field(self, fileobj, field, instance=None):
         raise NotImplementedError
 
-    def load_filefield_from_file(self, form):
-        if form.is_multipart():
-            out = MultiValueDict()
-            fields = form.file_fields()
-            for field in fields:
-                filestorage = self.get_files_from_field(field.html_name)
-                if filestorage:
-                    out.setlist(
-                        field.html_name,
-                        [getattr(fs, self.filefield) for fs in filestorage]
-                    )
-            return out
-        return None
+    def load_filefield_from_file(self):
+        out = MultiValueDict()
+        fields = self.form_class().file_fields()
+        for field in fields:
+            filestorage = self.get_files_from_field(field.html_name)
+            if filestorage:
+                out.setlist(
+                    field.html_name,
+                    [getattr(fs, self.filefield) for fs in filestorage]
+                )
+        return out
 
-    def save_filefield_to_file(self, form, instance=None):
+    def save_filefield_to_file(self, instance=None):
+        form = self.form_class()
         if form.is_multipart() and self.request.FILES:
             for field in form.file_fields():
-                fileobj = self.request.FILES.get(field.html_name, None)
+                field_name = field.html_name
+                fileobj = self.request.FILES.get(field_name, None)
                 if fileobj:
-                    self.upload_files_to_field(fileobj, field.html_name, instance)
+                    self.upload_files_to_field(fileobj, field_name, instance)
+    def load_files(self):
+        # load old files
+        files = self.load_filefield_from_file()
+        # overwrite with fresh files
+        files.update(self.request.FILES)
+        if not files:
+            files = None
+        return files
+
+    def load_data(self):
+        data = QueryDict('', mutable=True)
+        # load old data
+        data.update(unserialize(getattr(self.object, self.filefield, {})))
+        # overwrite with fresh data
+        data.update(self.request.POST)
+        data = self.strip_csrftoken(data)
+        if not data:
+            data = None
+        return data
+
+    def get_form_kwargs(self):
+        """Add previous round's data from storage"""
+        kwargs = super(FieldFileMapperMixin, self).get_form_kwargs()
+        data = self.load_data()
+        kwargs['data'] = data
+        files = self.load_files()
+        kwargs['files'] = files
+        return kwargs
+
+    def save(self, form):
+        # store, regardless of validity
+        form.seen()
+        data = form.data or {}
+        data = self.strip_csrftoken(data)
+        setattr(self.object, self.filefield, serialize(data))
+        self.object.save()
+        self.save_filefield_to_file(self.object)
 
 class UpdateMultiFormView(NoopFileMapperMixin, UpdateView):
     """Set:
@@ -65,43 +122,46 @@ class UpdateMultiFormView(NoopFileMapperMixin, UpdateView):
     form_class (a multiform)
     model where the data of the form is stored
 
-    If there's need for saving files to models, inherit from a subclass of NoopFileMapperMixin
+    You MUST set success_url or define get_success_url(), as per any
+    UpdateView.
 
-    You need to set success_url og define get_success_url() as per any UpdateView
+    If there's need for saving anything to models, mixin a subclass of
+    NoopFileMapperMixin or override its methods directly.
     """
-
-    def get_form_kwargs(self):
-        """Add previous round's data from storage"""
-        kwargs = super(UpdateMultiFormView, self).get_form_kwargs()
-        data = QueryDict('', mutable=False)
-        data.update(json.loads(kwargs['instance'].storage))
-        if data:
-            data.update(kwargs.get('data', QueryDict()))
-            kwargs['data'] = data
-        if 'data' in kwargs and not kwargs['data']:
-            del kwargs['data']
-        files = self.load_filefield_from_file(self.get_form_class()())
-        if files:
-            files.update(kwargs.get('files', MultiValueDict()))
-            kwargs['files'] = files
-        if 'files' in kwargs and not kwargs['files']:
-            del kwargs['files']
-        return kwargs
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        # store, regardless of validity
-        form.seen()
-        data = form.data.copy()
-        if 'csrfmiddlewaretoken' in data:
-            data.pop('csrfmiddlewaretoken')
-        self.object.storage = json.dumps(data)
-        self.object.save()
-        self.save_filefield_to_file(form, self.object)
+        self.save(form)
         if form.is_valid():
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
+class UpdateMultiPageFormView(UpdateMultiFormView):
+    """Set:
+    template_name
+    form_class (a multipageform)
+    model where the data of the form is stored
+
+    You MUST set success_url or define get_success_url(), as per any
+    UpdateView.
+
+    If there's need for saving anything to models, mixin a subclass of
+    NoopFileMapperMixin or override its methods directly.
+    """
+
+    def get_form_class(self):
+        slug = self.kwargs['slug']
+        page_class = self.form_class().pageclasses[slug]
+        return page_class
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(UpdateMultiPageFormView, self).get_context_data(**kwargs)
+        form_kwargs = self.get_form_kwargs()
+        pages = self.form_class(**form_kwargs)
+        kwargs['pages'] = pages
+        kwargs['pageslug'] = kwargs['form'].slug
+        return kwargs
 

@@ -1,0 +1,33 @@
+{% extends 'demoapp/base.html' %}
+{% block content %}
+<h1>Preview form</h1>
+<nav>
+{% for page in pages.pages.values %}
+{{ page.is_valid }}
+<a href="../{{ page.slug }}/">{{ page.slug }}</a>
+{% endfor %}
+<b>Preview</b>
+</nav>
+<p>Valid form: {{ pages.is_valid }}</p>
+<p>Valid page: {{ form.is_valid }}</p>
+<h2>Preview</h2>
+{% for page in pages.pages.values %}
+<h3>{{ page.is_valid }} {{ page.slug }}</h3>
+{% for field in page.preview %}
+<p><b>{{ field.0 }}</b>: {{ field.1 }}</p>
+{% endfor %}
+{% endfor %}
+<p>Pagesdata: {{ pages.data }}</p>
+<p>Pages cleaned data: {{ pages.cleaned_data }}</p>
+<p>Data: {{ form.data }}</p>
+<p>Cleaned data: {{ form.cleaned_data }}</p>
+<p>POST: {{ view.request.POST }}</p>
+<p>FILES: {{ view.request.FILES }}</p>
+<!--
+<form method="post" action="."{% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+{% csrf_token %}
+{{ form.as_table }}
+<input type="submit">
+</form>
+-->
+{% endblock content %}
