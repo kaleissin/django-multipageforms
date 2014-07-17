@@ -37,6 +37,10 @@ class FileForm(forms.Form):
 class OptionalFileForm(forms.Form):
     optional_document = forms.FileField(required=False)
 
+class OptionalForm(forms.Form):
+    optional_text = forms.CharField(required=False)
+    optional_document = forms.FileField(required=False)
+
 class ChoiceForm(forms.Form):
     CHOICES = (('choice1', 'choice1'), ('choice2', 'choice2'))
     choice = forms.MultipleChoiceField(choices=CHOICES)
@@ -50,10 +54,12 @@ class PersonForm(forms.ModelForm):
 class DemoMultiForm(MultiForm):
     slug = 'form1'
     formclasses = (
-        OptionalTextForm, IntegerForm,
-        BooleanForm, PersonForm,
+        TextForm, IntegerForm,
+        BooleanForm,
+        PersonForm,
         FileForm, OptionalFileForm,
-        ChoiceForm
+        ChoiceForm,
+        OptionalForm
     )
 
 class IndexView(TemplateView):
@@ -105,14 +111,30 @@ class PreviewMultiFormView(DemoFileMapperMixin, FormMixin, DetailView):
 class DemoMultiPageForm(MultiPageForm):
     class Page1MultiForm(MultiForm):
         slug = 'page1'
-        formclasses = (OptionalTextForm, IntegerForm)
+        formclasses = (TextForm, IntegerForm)
     class Page2MultiForm(MultiForm):
         slug = 'page2'
-        formclasses = (BooleanForm, PersonForm)
+        formclasses = (BooleanForm,)
     class Page3MultiForm(MultiForm):
         slug = 'page3'
+        formclasses = (PersonForm,)
+    class Page4MultiForm(MultiForm):
+        slug = 'page4'
         formclasses = (FileForm, OptionalFileForm)
-    pages = (Page1MultiForm, Page2MultiForm, Page3MultiForm)
+    class Page5MultiForm(MultiForm):
+        slug = 'page5'
+        formclasses = (ChoiceForm,)
+    class Page6MultiForm(MultiForm):
+        slug = 'page6'
+        formclasses = (OptionalForm,)
+    pages = (
+        Page1MultiForm,
+        Page2MultiForm,
+        Page3MultiForm,
+        Page4MultiForm,
+        Page5MultiForm,
+        Page6MultiForm,
+    )
 
 class CreateMultiPageFormView(TemplateView):
     form_class = DemoMultiPageForm
