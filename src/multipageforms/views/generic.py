@@ -7,10 +7,47 @@ from django.http import QueryDict
 from django.utils.datastructures import MultiValueDict
 
 def serialize(simple_object):
-    return json.dumps(simple_object)
+    adict = simple_object
+    # Naively converting a MultiValueDict() to dict() loses information
+    if isinstance(simple_object, MultiValueDict):
+        adict = {}
+        for key in simple_object:
+            adict[key] = simple_object.getlist(key)
+    return json.dumps(adict)
 
 def unserialize(serialized_object):
-    return json.loads(serialized_object)
+    unserialized = json.loads(serialized_object)
+    out = MultiValueDict()
+    # Naively converting a dict() to MultiValueDict() loses information
+    for key, value in unserialized.items():
+        out.setlist(key, value)
+    return out
+
+def update_multivaluedict(old, new):
+    """Use instead of MultiValueDict.update()
+
+    MultiValueDict.update() appends instead of overwrites, so a helper function
+    is needed if overwrite is what you want.
+    """
+    if not old:
+        return new
+    if not new:
+        return old
+    out = MultiValueDict()
+    new = new.copy()
+    for key, value in old.lists():
+        if not key in new:
+            out.setlist(key, value)
+            continue
+        newvalue = new.getlist(key)
+        if newvalue == value:
+            out.setlist(key, value)
+            new.pop(key)
+            continue
+        out.setlist(key, newvalue)
+    for key, value in new.lists():
+        out.setlist(key, value)
+    return out
 
 class NoopFileMapperMixin(object):
 
@@ -88,12 +125,14 @@ class FieldFileMapperMixin(NoopFileMapperMixin):
         return files
 
     def load_data(self):
-        data = QueryDict('', mutable=True)
+        data = MultiValueDict()
         # load old data
         data.update(unserialize(getattr(self.object, self.filefield, {})))
         # overwrite with fresh data
-        data.update(self.request.POST)
-        data = self.strip_csrftoken(data)
+        data = update_multivaluedict(data, self.request.POST)
+        qdata = QueryDict('', mutable=True)
+        qdata.update(data)
+        data = self.strip_csrftoken(qdata)
         if not data:
             data = None
         return data
