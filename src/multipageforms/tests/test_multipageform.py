@@ -62,14 +62,21 @@ class MultiPageFormTest(unittest.TestCase):
 
         page1 = mpf.pages['test1']
         self.assertTrue(page1.is_bound)
-        self.assertTrue(page1.is_valid())
+        self.assertFalse(page1.is_valid()) # seen not set!
+        self.assertEqual(page1.cleaned_data, expected_1)
+        page1.seen()
+        expected_1 = {'0': {'seen': True},
+                      '1': {'i': 5},
+                      '2': {'c': u'a'}}
+        self.assertTrue(page1.is_valid()) # seen set!
         self.assertEqual(page1.cleaned_data, expected_1)
 
         page2 = mpf.pages['test2']
+        page2.seen()
         self.assertTrue(page2.is_bound)
         self.assertTrue(page2.is_valid())
         expected_2 = {
-            '0': {'seen': None},
+            '0': {'seen': True},
             '1': {'o': ''},
         }
         self.assertEqual(page2.cleaned_data, expected_2)

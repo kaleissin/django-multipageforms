@@ -123,7 +123,7 @@ class MultiForm(object):
         return None
 
     def is_valid(self):
-        if self.is_initialized:
+        if self.is_seen and self.is_initialized:
             return all(form.is_valid() for form in self.forms)
         return None
 
