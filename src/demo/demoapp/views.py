@@ -37,6 +37,11 @@ class FileForm(forms.Form):
 class OptionalFileForm(forms.Form):
     optional_document = forms.FileField(required=False)
 
+class ChoiceForm(forms.Form):
+    CHOICES = (('choice1', 'choice1'), ('choice2', 'choice2'))
+    choice = forms.MultipleChoiceField(choices=CHOICES)
+    chance = forms.ChoiceField(choices=CHOICES)
+
 class PersonForm(forms.ModelForm):
 
     class Meta:
@@ -44,7 +49,12 @@ class PersonForm(forms.ModelForm):
 
 class DemoMultiForm(MultiForm):
     slug = 'form1'
-    formclasses = (OptionalTextForm, IntegerForm, BooleanForm, FileForm, OptionalFileForm)
+    formclasses = (
+        OptionalTextForm, IntegerForm,
+        BooleanForm, PersonForm,
+        FileForm, OptionalFileForm,
+        ChoiceForm
+    )
 
 class IndexView(TemplateView):
     template_name = 'demoapp/index.html'
@@ -95,10 +105,10 @@ class PreviewMultiFormView(DemoFileMapperMixin, FormMixin, DetailView):
 class DemoMultiPageForm(MultiPageForm):
     class Page1MultiForm(MultiForm):
         slug = 'page1'
-        formclasses = (TextForm, IntegerForm)
+        formclasses = (OptionalTextForm, IntegerForm)
     class Page2MultiForm(MultiForm):
         slug = 'page2'
-        formclasses = (BooleanForm, OptionalTextForm)
+        formclasses = (BooleanForm, PersonForm)
     class Page3MultiForm(MultiForm):
         slug = 'page3'
         formclasses = (FileForm, OptionalFileForm)
