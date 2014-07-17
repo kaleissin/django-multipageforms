@@ -6,6 +6,8 @@ from django.views.generic import UpdateView
 from django.http import QueryDict
 from django.utils.datastructures import MultiValueDict
 
+SERIALIZE_INDENT = 1
+
 def serialize(simple_object):
     adict = simple_object
     # Naively converting a MultiValueDict() to dict() loses information
@@ -13,7 +15,7 @@ def serialize(simple_object):
         adict = {}
         for key in simple_object:
             adict[key] = simple_object.getlist(key)
-    return json.dumps(adict)
+    return json.dumps(adict, indent=SERIALIZE_INDENT)
 
 def unserialize(serialized_object):
     unserialized = json.loads(serialized_object)
