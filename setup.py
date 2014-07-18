@@ -11,7 +11,7 @@ finally:
 
 setup(name='django-multipageforms',
         version='0.1',
-        packages=[''],
+        packages=['multipageforms'],
         package_dir = {'': 'src',},
         include_package_data=True,
         zip_safe=False,
