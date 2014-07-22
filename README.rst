@@ -7,7 +7,7 @@ Installation
 
 Install the library, for instance with pip::
 
-    pip install django-verification
+    pip install django-multipageforms
 
 
 Demo
