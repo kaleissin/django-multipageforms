@@ -161,5 +161,7 @@ class UpdateMultiPageFormView(UpdateMultiFormView):
         pages = self.form_class(**form_kwargs)
         kwargs['pages'] = pages
         kwargs['pageslug'] = kwargs['form'].slug
+        kwargs['next_page'] = pages.next_page(kwargs['form'].slug)
+        kwargs['prev_page'] = pages.prev_page(kwargs['form'].slug)
         return kwargs
 

@@ -38,6 +38,44 @@ class MultiPageForm(object):
         first_slug = self.pages.keys()[0]
         return self.pages[first_slug]
 
+    def last_page(self):
+        if not self.is_initialized:
+            self.initialize()
+        last_slug = self.pages.keys()[-1]
+        return self.pages[last_slug]
+
+    def next_page(self, slug):
+        """
+        Returns next page if any, None otherwise.
+        Returns ValueError if slug does not exist in the pages
+        """
+        if not self.is_initialized:
+            self.initialize()
+        page_slugs = self.pages.keys()
+        current_index = page_slugs.index(slug) # ValueError
+        next_index = current_index + 1
+        if next_index > len(page_slugs) - 1:
+            # No more pages
+            return None
+        next_slug = page_slugs[next_index]
+        return self.pages[next_slug]
+
+    def prev_page(self, slug):
+        """
+        Returns prev page if any, None otherwise.
+        Returns ValueError if slug does not exist in the pages
+        """
+        if not self.is_initialized:
+            self.initialize()
+        page_slugs = self.pages.keys()
+        current_index = page_slugs.index(slug) # ValueError
+        prev_index = current_index - 1
+        if prev_index < 0:
+            # No more pages
+            return None
+        prev_slug = page_slugs[prev_index]
+        return self.pages[prev_slug]
+
     def initialize(self, initial=None, **kwargs):
         pages = []
         self.initial = self.initial or initial

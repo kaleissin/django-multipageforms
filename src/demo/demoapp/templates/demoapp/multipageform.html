@@ -30,6 +30,12 @@
 <form method="post" action="."{% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
 {% csrf_token %}
 {{ form.as_table }}
+{% if prev_page %}
+<a href="../{{ prev_page.slug }}/">Prev</a>
+{% endif %}
 <input type="submit">
+{% if next_page %}
+<a href="../{{ next_page.slug }}/">Next</a>
+{% endif %}
 </form>
 {% endblock content %}
