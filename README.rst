@@ -37,4 +37,4 @@ then run the tests with::
     make test APP=multipageforms
 
 
-:Version: 0.1.1
+:Version: 0.2.0
