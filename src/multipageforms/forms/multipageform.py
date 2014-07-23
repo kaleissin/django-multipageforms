@@ -78,7 +78,12 @@ class MultiPageForm(object):
         return any(page.is_multipart() for page in self.pages.values())
 
     def is_valid(self):
-        return all(page.is_valid() for page in self.pages.values())
+        if self.is_initialized:
+            pages_done = sum(bool(page.is_valid()) for page in self.pages.values())
+            num_pages = len(self.pages)
+            self.percentage_done = pages_done / float(num_pages)
+            return pages_done == num_pages
+        return None
 
     @property
     def cleaned_data(self):

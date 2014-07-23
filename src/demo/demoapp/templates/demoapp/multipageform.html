@@ -12,7 +12,7 @@
 {% endfor %}
     <a href="../preview/">Preview</a>
 </nav>
-<p>Valid form: {{ pages.is_valid }}</p>
+<p>Valid form: {{ pages.is_valid }}, {{ pages.percentage_done|floatformat }}% done</p>
 <p>Valid page: {{ form.is_valid }}</p>
 <h2>Preview</h2>
 {% for page in pages.pages.values %}
