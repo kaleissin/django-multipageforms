@@ -74,6 +74,7 @@ class CreateMultiFormView(TemplateView):
 
 class DemoFileMapperMixin(FieldFileMapperMixin):
     filefield = 'storage'
+    datafield = 'storage'
     filemodel = FileStorage
 
     def get_files_from_field(self, fieldname):

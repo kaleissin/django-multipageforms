@@ -40,6 +40,7 @@ class FieldFileMapperMixin(NoopFileMapperMixin):
     """
     filemodel: Model with one file field
     filefield: the field on the model that holds the file
+    datafield: the field on the model that holds serialized data
 
     The filemodel instance must contain something to map the file to one
     specific field of one specific form. Override get_files_from_field() to
@@ -74,6 +75,7 @@ class FieldFileMapperMixin(NoopFileMapperMixin):
                 fileobj = self.request.FILES.get(field_name, None)
                 if fileobj:
                     self.upload_files_to_field(fileobj, field_name, instance)
+
     def load_files(self):
         # load old files
         files = self.load_filefield_from_file()
@@ -86,7 +88,7 @@ class FieldFileMapperMixin(NoopFileMapperMixin):
     def load_data(self):
         data = MultiValueDict()
         # load old data
-        data.update(unserialize(getattr(self.object, self.filefield, {})))
+        data.update(unserialize(getattr(self.object, self.datafield, {})))
         # overwrite with fresh data
         data = update_multivaluedict(data, self.request.POST)
         qdata = QueryDict('', mutable=True)
@@ -110,7 +112,7 @@ class FieldFileMapperMixin(NoopFileMapperMixin):
         form.seen()
         data = form.data or {}
         data = self.strip_csrftoken(data)
-        setattr(self.object, self.filefield, serialize(data))
+        setattr(self.object, self.datafield, serialize(data))
         self.object.save()
         self.save_filefield_to_file(self.object)
 
