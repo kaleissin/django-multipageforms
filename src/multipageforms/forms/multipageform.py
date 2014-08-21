@@ -119,7 +119,7 @@ class MultiPageForm(object):
         if self.is_initialized:
             pages_done = sum(bool(page.is_valid()) for page in self.pages.values())
             num_pages = len(self.pages)
-            self.percentage_done = pages_done / float(num_pages)
+            self.percentage_done = 100 * pages_done / float(num_pages)
             return pages_done == num_pages
         return None
 
