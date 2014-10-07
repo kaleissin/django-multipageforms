@@ -10,6 +10,8 @@ DATABASES = {
     }
 }
 
+MIDDLEWARE_CLASSES = ()
+
 INSTALLED_APPS += ['multipageforms.tests']
 
 SECRET_KEY = 'na2Tei0FoChe3ooloh5Yaec0ji7Aipho'
