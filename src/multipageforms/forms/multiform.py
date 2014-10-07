@@ -84,7 +84,6 @@ class MultiForm(object):
         for form in self.forms[1:]:
             if hasattr(form, 'instance'):
                 form.save()
-        return self
 
     def initialize(self, initial=None, instance=None, **kwargs):
         forms = []

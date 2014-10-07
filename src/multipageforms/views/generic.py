@@ -129,6 +129,13 @@ class UpdateMultiFormView(NoopFileMapperMixin, UpdateView):
     NoopFileMapperMixin or override its methods directly.
     """
 
+    def form_valid(self, form):
+        # ModelForms not (yet) supported, prevent changing self.object
+        existing_object = self.object
+        next_hop = super(UpdateMultiFormView, self).form_valid(form)
+        self.object = existing_object
+        return next_hop
+
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
