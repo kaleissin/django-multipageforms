@@ -151,6 +151,8 @@ class MultiForm(object):
                 name = field.name
                 if form.is_valid():
                     data = form.cleaned_data[name]
+                else:
+                    data = getattr(field, 'data', data) or data
                 lines.append((label, data))
         return lines
 
