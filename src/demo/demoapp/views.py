@@ -13,7 +13,7 @@ from django.utils.datastructures import MultiValueDict
 
 from multipageforms.forms.multiform import MultiForm
 from multipageforms.forms.multipageform import MultiPageForm
-from multipageforms.views.generic import FieldFileMapperMixin
+from multipageforms.views.generic import AbstractFieldFileMapperMixin
 from multipageforms.views.generic import UpdateMultiFormView
 from multipageforms.views.generic import UpdateMultiPageFormView
 
@@ -72,7 +72,7 @@ class CreateMultiFormView(TemplateView):
         url = '/multiform/%i/' % (formstorage.pk)
         return HttpResponseRedirect(url)
 
-class DemoFileMapperMixin(FieldFileMapperMixin):
+class DemoFileMapperMixin(AbstractFieldFileMapperMixin):
     filefield = 'storage'
     datafield = 'storage'
     filemodel = FileStorage

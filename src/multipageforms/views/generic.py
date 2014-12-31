@@ -8,35 +8,7 @@ from django.utils.datastructures import MultiValueDict
 
 from multipageforms.tools import serialize, unserialize, update_multivaluedict
 
-class NoopFileMapperMixin(object):
-
-    def strip_csrftoken(self, data):
-        if 'csrfmiddlewaretoken' in data:
-            data.pop('csrfmiddlewaretoken')
-        return data
-
-    def get_files_from_field(self, fieldname):
-        return ()
-
-    def upload_files_to_field(self, fileobj, field, instance=None):
-        return None
-
-    def load_filefield_from_file(self):
-        return None
-
-    def save_filefield_to_file(self):
-        return None
-
-    def load_files(self):
-        return None
-
-    def load_data(self):
-        return None
-
-    def save(self, form):
-        pass
-
-class FieldFileMapperMixin(NoopFileMapperMixin):
+class AbstractFieldFileMapperMixin(object):
     """
     filemodel: Model with one file field
     filefield: the field on the model that holds the file
@@ -50,9 +22,17 @@ class FieldFileMapperMixin(NoopFileMapperMixin):
     """
 
     def get_files_from_field(self, fieldname):
+        """
+        Maps fieldname (filefield) to fileobj (filemodel)
+
+        Returns an instance of filemodel
+        """
         raise NotImplementedError
 
     def upload_files_to_field(self, fileobj, field, instance=None):
+        """
+        Maps field (filefield) to filemodel via instance, stores fileobj there
+        """
         raise NotImplementedError
 
     def load_filefield_from_file(self):
@@ -85,6 +65,36 @@ class FieldFileMapperMixin(NoopFileMapperMixin):
             files = None
         return files
 
+    def get_form_kwargs(self):
+        """Add file-specific data"""
+        kwargs = super(AbstractFieldFileMapperMixin, self).get_form_kwargs()
+        files = self.load_files()
+        kwargs['files'] = files
+        return kwargs
+
+    def save(self, form):
+        super(AbstractFieldFileMapperMixin, self).save(form)
+        self.save_filefield_to_file(self.object)
+
+class UpdateMultiFormView(UpdateView):
+    """Set:
+    template_name: as per django
+    form_class:    a multiform
+    model:         where the data of the form is stored
+    datafield:     the field on the model that holds serialized data
+
+    You MUST set success_url or define get_success_url(), as per any
+    UpdateView.
+
+    If there's need for saving files to models, mixin a subclass of
+    AbstractFieldFileMapperMixin or override its methods directly.
+    """
+
+    def strip_csrftoken(self, data):
+        if 'csrfmiddlewaretoken' in data:
+            data.pop('csrfmiddlewaretoken')
+        return data
+
     def load_data(self):
         data = MultiValueDict()
         # load old data
@@ -98,15 +108,6 @@ class FieldFileMapperMixin(NoopFileMapperMixin):
             data = None
         return data
 
-    def get_form_kwargs(self):
-        """Add previous round's data from storage"""
-        kwargs = super(FieldFileMapperMixin, self).get_form_kwargs()
-        data = self.load_data()
-        kwargs['data'] = data
-        files = self.load_files()
-        kwargs['files'] = files
-        return kwargs
-
     def save(self, form):
         # store, regardless of validity
         form.seen()
@@ -114,20 +115,13 @@ class FieldFileMapperMixin(NoopFileMapperMixin):
         data = self.strip_csrftoken(data)
         setattr(self.object, self.datafield, serialize(data))
         self.object.save()
-        self.save_filefield_to_file(self.object)
 
-class UpdateMultiFormView(NoopFileMapperMixin, UpdateView):
-    """Set:
-    template_name
-    form_class (a multiform)
-    model where the data of the form is stored
-
-    You MUST set success_url or define get_success_url(), as per any
-    UpdateView.
-
-    If there's need for saving anything to models, mixin a subclass of
-    NoopFileMapperMixin or override its methods directly.
-    """
+    def get_form_kwargs(self):
+        """Add previous round's data from storage"""
+        kwargs = super(UpdateMultiFormView, self).get_form_kwargs()
+        data = self.load_data()
+        kwargs['data'] = data
+        return kwargs
 
     def form_valid(self, form):
         # ModelForms not (yet) supported, prevent changing self.object
