@@ -32,9 +32,13 @@ To run the tests, first install the testing-requirements::
 
     pip install -r requirements/test.txt
 
-then run the tests with::
+Provided you have a python on your path you can then run the tests with::
 
-    make test APP=multipageforms
+    python runtests.py
+
+You can also test with tox::
+
+    tox
 
 
 :Version: 0.3.2
