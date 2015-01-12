@@ -6,4 +6,11 @@
 <form action="/multipageform/" method="post">
     {% csrf_token %}
     <input type="submit" value="New Multipageform" /></form>
+
+<form action="/multiform-files/" method="post">
+    {% csrf_token %}
+    <input type="submit" value="New Multiform with Files" /></form>
+<form action="/multipageform-files/" method="post">
+    {% csrf_token %}
+    <input type="submit" value="New Multipageform with Files" /></form>
 {% endblock content %}

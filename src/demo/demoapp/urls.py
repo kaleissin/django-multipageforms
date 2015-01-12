@@ -8,6 +8,12 @@ from .views import (
     MultiPageFormView,
     PreviewMultiPageFormView,
     CreateMultiPageFormView,
+    MultiFormWithFilesView,
+    PreviewMultiFormWithFilesView,
+    CreateMultiFormWithFilesView,
+    MultiPageFormWithFilesView,
+    PreviewMultiPageFormWithFilesView,
+    CreateMultiPageFormWithFilesView,
 )
 
 PK_RE = r'(?P<pk>\d+)/'
@@ -22,4 +28,11 @@ urlpatterns = patterns('',
     url(r'^multipageform/' + PK_RE + 'preview/$', PreviewMultiPageFormView.as_view(), name='previewmultipageform'),
     url(r'^multipageform/' + PK_RE + SLUG_RE + '$', MultiPageFormView.as_view(), name='updatemultipageform'),
     url(r'^multipageform/$', CreateMultiPageFormView.as_view(), name='createmultipageform'),
+
+    url(r'^multiform-files/' + PK_RE + 'preview/$', PreviewMultiFormWithFilesView.as_view(), name='previewimultiform-files'),
+    url(r'^multiform-files/' + PK_RE + '$', MultiFormWithFilesView.as_view(), name='updatemultiform-files'),
+    url(r'^multiform-files/$', CreateMultiFormWithFilesView.as_view(), name='createmultiform-files'),
+    url(r'^multipageform-files/' + PK_RE + 'preview/$', PreviewMultiPageFormWithFilesView.as_view(), name='previewmultipageform-files'),
+    url(r'^multipageform-files/' + PK_RE + SLUG_RE + '$', MultiPageFormWithFilesView.as_view(), name='updatemultipageform-files'),
+    url(r'^multipageform-files/$', CreateMultiPageFormWithFilesView.as_view(), name='createmultipageform-files'),
 )
