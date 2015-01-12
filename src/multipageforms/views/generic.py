@@ -8,7 +8,44 @@ from django.utils.datastructures import MultiValueDict
 
 from multipageforms.tools import serialize, unserialize, update_multivaluedict
 
-class AbstractFieldFileMapperMixin(object):
+class ModelMapperMixin(object):
+    """
+    datafield: the field on the model that holds serialized data
+    """
+    def strip_csrftoken(self, data):
+        if 'csrfmiddlewaretoken' in data:
+            data.pop('csrfmiddlewaretoken')
+        return data
+
+    def get_form_kwargs(self):
+        """Add previous round's data from storage"""
+        kwargs = super(ModelMapperMixin, self).get_form_kwargs()
+        data = self.load_data()
+        kwargs['data'] = data
+        return kwargs
+
+    def load_data(self):
+        data = MultiValueDict()
+        # load old data
+        data.update(unserialize(getattr(self.object, self.datafield, {})))
+        # overwrite with fresh data
+        data = update_multivaluedict(data, self.request.POST)
+        qdata = QueryDict('', mutable=True)
+        qdata.update(data)
+        data = self.strip_csrftoken(qdata)
+        if not data:
+            data = None
+        return data
+
+    def save(self, form):
+        # store, regardless of validity
+        form.seen()
+        data = form.data or {}
+        data = self.strip_csrftoken(data)
+        setattr(self.object, self.datafield, serialize(data))
+        self.object.save()
+
+class AbstractFieldFileMapperMixin(ModelMapperMixin):
     """
     filemodel: Model with one file field
     filefield: the field on the model that holds the file
@@ -76,52 +113,15 @@ class AbstractFieldFileMapperMixin(object):
         super(AbstractFieldFileMapperMixin, self).save(form)
         self.save_filefield_to_file(self.object)
 
-class UpdateMultiFormView(UpdateView):
+class UpdateMultiFormView(ModelMapperMixin, UpdateView):
     """Set:
-    template_name: as per django
-    form_class:    a multiform
-    model:         where the data of the form is stored
-    datafield:     the field on the model that holds serialized data
+    template_name
+    form_class (a multiform)
+    model where the data of the form is stored
 
     You MUST set success_url or define get_success_url(), as per any
     UpdateView.
-
-    If there's need for saving files to models, mixin a subclass of
-    AbstractFieldFileMapperMixin or override its methods directly.
     """
-
-    def strip_csrftoken(self, data):
-        if 'csrfmiddlewaretoken' in data:
-            data.pop('csrfmiddlewaretoken')
-        return data
-
-    def load_data(self):
-        data = MultiValueDict()
-        # load old data
-        data.update(unserialize(getattr(self.object, self.datafield, {})))
-        # overwrite with fresh data
-        data = update_multivaluedict(data, self.request.POST)
-        qdata = QueryDict('', mutable=True)
-        qdata.update(data)
-        data = self.strip_csrftoken(qdata)
-        if not data:
-            data = None
-        return data
-
-    def save(self, form):
-        # store, regardless of validity
-        form.seen()
-        data = form.data or {}
-        data = self.strip_csrftoken(data)
-        setattr(self.object, self.datafield, serialize(data))
-        self.object.save()
-
-    def get_form_kwargs(self):
-        """Add previous round's data from storage"""
-        kwargs = super(UpdateMultiFormView, self).get_form_kwargs()
-        data = self.load_data()
-        kwargs['data'] = data
-        return kwargs
 
     def form_valid(self, form):
         # ModelForms not (yet) supported, prevent changing self.object
