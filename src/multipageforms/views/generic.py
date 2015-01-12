@@ -115,12 +115,16 @@ class AbstractFieldFileMapperMixin(ModelMapperMixin):
 
 class UpdateMultiFormView(ModelMapperMixin, UpdateView):
     """Set:
-    template_name
-    form_class (a multiform)
-    model where the data of the form is stored
+    template_name: as per django
+    form_class:    a multiform
+    model:         where the data of the form is stored
+    datafield:     the field on the model that holds serialized data
 
     You MUST set success_url or define get_success_url(), as per any
     UpdateView.
+
+    If there's need for saving files to models, mixin a subclass of
+    AbstractFieldFileMapperMixin.
     """
 
     def form_valid(self, form):
