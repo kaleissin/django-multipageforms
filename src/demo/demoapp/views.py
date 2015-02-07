@@ -1,15 +1,9 @@
 from __future__ import unicode_literals
 
-import json
-
 from django import forms
-from django.views.generic import TemplateView, FormView, DetailView, UpdateView
+from django.views.generic import TemplateView, DetailView
 from django.views.generic.edit import FormMixin
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.http import QueryDict
-from django.forms.fields import FileField
-from django.utils.datastructures import MultiValueDict
 
 from multipageforms.forms.multiform import MultiForm
 from multipageforms.forms.multipageform import MultiPageForm

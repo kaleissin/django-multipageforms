@@ -4,12 +4,6 @@ from collections import OrderedDict
 import logging
 import copy
 
-from django import forms
-from django.http import QueryDict
-from django.utils.text import slugify
-from django.db.models.query import QuerySet
-from django.utils.safestring import mark_safe
-
 LOGGER = logging.getLogger(__name__)
 
 class MultiPageForm(object):
