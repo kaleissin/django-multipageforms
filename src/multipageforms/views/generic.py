@@ -7,15 +7,15 @@ from django.http import QueryDict
 from django.utils.datastructures import MultiValueDict
 
 from multipageforms.tools import serialize, unserialize, update_multivaluedict
+from multipageforms.tools import strip_csrftoken
 
 class ModelMapperMixin(object):
     """
     datafield: the field on the model that holds serialized data
     """
     def strip_csrftoken(self, data):
-        if 'csrfmiddlewaretoken' in data:
-            data.pop('csrfmiddlewaretoken')
-        return data
+        # For backwards compatibility
+        return strip_csrftoken(data)
 
     def get_form_kwargs(self):
         """Add previous round's data from storage"""
@@ -32,7 +32,7 @@ class ModelMapperMixin(object):
         data = update_multivaluedict(data, self.request.POST)
         qdata = QueryDict('', mutable=True)
         qdata.update(data)
-        data = self.strip_csrftoken(qdata)
+        data = strip_csrftoken(qdata)
         if not data:
             data = None
         return data
@@ -41,7 +41,7 @@ class ModelMapperMixin(object):
         # store, regardless of validity
         form.seen()
         data = form.data or {}
-        data = self.strip_csrftoken(data)
+        data = strip_csrftoken(data)
         setattr(self.object, self.datafield, serialize(data))
         self.object.save()
 

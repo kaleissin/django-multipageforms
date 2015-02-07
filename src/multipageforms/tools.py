@@ -7,6 +7,11 @@ from django.utils.datastructures import MultiValueDict
 
 SERIALIZE_INDENT = 1
 
+def strip_csrftoken(data):
+    if 'csrfmiddlewaretoken' in data:
+        data.pop('csrfmiddlewaretoken')
+    return data
+
 def serialize(simple_object):
     adict = simple_object
     # Naively converting a MultiValueDict() to dict() loses information
