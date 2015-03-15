@@ -27,7 +27,8 @@ class ModelMapperMixin(object):
     def load_data(self):
         data = MultiValueDict()
         # load old data
-        data.update(unserialize(getattr(self.object, self.datafield, {})))
+        old_data = unserialize(getattr(self.object, self.datafield))
+        data.update(old_data)
         # overwrite with fresh data
         data = update_multivaluedict(data, self.request.POST)
         qdata = QueryDict('', mutable=True)
