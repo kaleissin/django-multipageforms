@@ -41,4 +41,4 @@ You can also test with tox::
     tox
 
 
-:Version: 0.5.0
+:Version: 0.5.1
