@@ -6,6 +6,7 @@ import copy
 
 from django import forms
 from django.utils.safestring import mark_safe
+from django.utils.encoding import force_text
 
 LOGGER = logging.getLogger(__name__)
 
@@ -94,7 +95,7 @@ class MultiForm(object):
         for i, Form in enumerate(self.formclasses):
             prefix = self.prefix_for_form(i)
             if self.initial is not None:
-                form_initial = self.initial.get(unicode(i), {})
+                form_initial = self.initial.get(force_text(i), {})
             form = Form(prefix=prefix, initial=form_initial)
             forms.append(form)
         self.forms = forms
@@ -138,7 +139,7 @@ class MultiForm(object):
         if self.is_bound:
             for i, form in enumerate(self.forms):
                 form.is_valid()
-                cleaned_data[unicode(i)] = form.cleaned_data
+                cleaned_data[force_text(i)] = form.cleaned_data
         return cleaned_data
 
     def preview(self):
