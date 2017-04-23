@@ -22,7 +22,9 @@ def serialize(simple_object):
     return json.dumps(adict, indent=SERIALIZE_INDENT)
 
 def unserialize(serialized_object):
-    if not isinstance(serialized_object, (str, unicode)):
+    try:
+        u'' + serialized_object
+    except TypeError:  # `serialized_object` is not a string
         raise TypeError('The parameter given must be a string')
     unserialized = json.loads(serialized_object)
     out = MultiValueDict()
