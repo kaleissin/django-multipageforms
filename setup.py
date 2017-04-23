@@ -10,7 +10,7 @@ finally:
     README_FILE.close()
 
 setup(name='django-multipageforms',
-        version='0.5.1',
+        version='0.5.2',
         packages=['multipageforms'],
         package_dir={'': 'src'},
         include_package_data=True,
