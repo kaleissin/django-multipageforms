@@ -12,6 +12,17 @@ def strip_csrftoken(data):
         data.pop('csrfmiddlewaretoken')
     return data
 
+def fill_form(data, Form):
+    """Makes a form filled with <data> out of <Form>
+
+    The data needs to be a dict of lists or a MultiValueDict
+    """
+    qdata = QueryDict('', mutable=True)
+    qdata.update(data)
+    form = Form(data=qdata)
+    form.is_valid()
+    return form
+
 def serialize(simple_object):
     adict = simple_object
     # Naively converting a MultiValueDict() to dict() loses information
