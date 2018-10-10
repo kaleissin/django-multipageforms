@@ -161,7 +161,7 @@ class MultiForm(object):
         initial = {}
         for formkey, cleaned_data in self.cleaned_data.items():
             initial_base = copy.deepcopy(cleaned_data) or {}
-            for key, value in initial_base.items():
+            for key, value in list(initial_base.items()):
                 if not value:
                     del initial_base[key]
             if not initial_base:
