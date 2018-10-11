@@ -34,6 +34,24 @@ class MultiPageFormTest(unittest.TestCase):
         mpf = self.multipageformclass()
         self.assertEqual(mpf.first_page(), mpf.pages['test1'])
 
+    def test_last_page(self):
+        mpf = self.multipageformclass()
+        self.assertEqual(mpf.last_page(), mpf.pages['test2'])
+
+    def test_next_page(self):
+        mpf = self.multipageformclass()
+        self.assertEqual(mpf.next_page('test1'), mpf.pages['test2'])
+        self.assertEqual(mpf.next_page('test2'), None)
+        with self.assertRaises(ValueError):
+            mpf.next_page('non existing page')
+
+    def test_prev_page(self):
+        mpf = self.multipageformclass()
+        self.assertEqual(mpf.prev_page('test2'), mpf.pages['test1'])
+        self.assertEqual(mpf.prev_page('test1'), None)
+        with self.assertRaises(ValueError):
+            mpf.prev_page('non existing page')
+
     def test_initialize(self):
         mpf = self.multipageformclass()
         mpf.initialize()
@@ -101,3 +119,31 @@ class MultiPageFormTest(unittest.TestCase):
         result = mpf.preview()
         expected = [[(u'I', 5), (u'C', u'a')], [(u'O', u'')]]
         self.assertEqual(expected, result)
+
+    def test_get_initial_data(self):
+        mpf = self.multipageformclass()
+        expected = {'test1': {}, 'test2': {}}
+        result = mpf.get_initial_data()
+        self.assertEqual(expected, result)
+        data = {
+            'test1-1-i': 5,
+            'test1-2-c': 'a',
+        }
+        mpf.bind(data=data)
+        expected = {'test1': {'1': {'i': 5}, '2': {'c': 'a'}}, 'test2': {}}
+        result = mpf.get_initial_data()
+        self.assertEqual(expected, result)
+
+    def test_cleaned_data(self):
+        mpf = self.multipageformclass()
+        self.assertEqual(mpf.cleaned_data, {})
+        data = {
+            'test1-1-i': 5,
+            'test1-2-c': 'a',
+        }
+        mpf.bind(data=data)
+        expected = {
+            'test1': {'0': {'seen': None}, '1': {'i': 5}, '2': {'c': 'a'}},
+            'test2': {'0': {'seen': None}, '1': {'o': ''}}
+        }
+        self.assertEqual(expected, mpf.cleaned_data)
