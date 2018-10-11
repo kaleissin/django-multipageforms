@@ -99,7 +99,7 @@ load_demo_fixtures:
 	$(PYTHON_BIN)/django-admin.py loaddata $(PYTHONPATH)/demo/fixtures/demo.json $(DJANGO_POSTFIX)
 
 demodatabase: clean virtual_env_set
-	$(PYTHON_BIN)/django-admin.py syncdb --noinput $(DJANGO_POSTFIX)
+	$(PYTHON_BIN)/django-admin.py migrate --noinput $(DJANGO_POSTFIX)
 
 demo: virtual_env_set pip demodatabase load_demo_fixtures runserver_unsafe
 

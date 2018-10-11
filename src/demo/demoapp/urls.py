@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .views import (
     IndexView,
@@ -19,7 +19,7 @@ from .views import (
 PK_RE = r'(?P<pk>\d+)/'
 SLUG_RE = r'(?P<slug>[+\w_]+)/'
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', IndexView.as_view(), name='index'),
 
     url(r'^multiform/' + PK_RE + 'preview/$', PreviewMultiFormView.as_view(), name='previewimultiform'),
@@ -35,4 +35,4 @@ urlpatterns = patterns('',
     url(r'^multipageform-files/' + PK_RE + 'preview/$', PreviewMultiPageFormWithFilesView.as_view(), name='previewmultipageform-files'),
     url(r'^multipageform-files/' + PK_RE + SLUG_RE + '$', MultiPageFormWithFilesView.as_view(), name='updatemultipageform-files'),
     url(r'^multipageform-files/$', CreateMultiPageFormWithFilesView.as_view(), name='createmultipageform-files'),
-)
+]

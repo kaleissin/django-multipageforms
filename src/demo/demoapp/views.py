@@ -45,6 +45,7 @@ class PersonForm(forms.ModelForm):
 
     class Meta:
         model = Person
+        fields = ('name',)
 
 class DemoMultiForm(MultiForm):
     slug = 'form1'
