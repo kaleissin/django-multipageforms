@@ -6,6 +6,7 @@ from django import test, forms
 
 from ..forms import multiform
 
+
 class MultiFormTest(unittest.TestCase):
 
     def setUp(self):
@@ -56,9 +57,11 @@ class MultiFormTest(unittest.TestCase):
         multiform.initialize()
         self.assertTrue(multiform.is_initialized)
         self.assertFalse(multiform.is_bound)
-        expected = ('<input id="id_testmultiform-0-seen" '
-                    'name="testmultiform-0-seen" type="hidden" />')
-        self.assertEqual(expected, multiform.forms[0].as_p())
+        seen = multiform.forms[0]['seen']
+        self.assertEqual(seen.label, 'Seen')
+        self.assertEqual(seen.html_name, 'testmultiform-0-seen')
+        self.assertEqual(seen.name, 'seen')
+        self.assertIsInstance(seen.field.widget, forms.widgets.HiddenInput)
 
     def test_initialize(self):
         multiform = self.TestMultiForm()
@@ -70,12 +73,13 @@ class MultiFormTest(unittest.TestCase):
         multiform.initialize(initial=initial)
         self.assertTrue(multiform.is_initialized)
         self.assertFalse(multiform.is_bound)
-        expected1 = ('''<p><label for="id_testmultiform-1-i1">I1:</label> '''
-        '''<input id="id_testmultiform-1-i1" name="testmultiform-1-i1" '''
-        '''type="number" value="1" /></p>''')
-        self.assertEqual(expected1, multiform.forms[1].as_p())
-        expected2 = ('''<p><label for="id_testmultiform-2-i2">I2:</label> '''
-        '''<input id="id_testmultiform-2-i2" name="testmultiform-2-i2" '''
-        '''type="number" value="2" /></p>''')
-        self.assertEqual(expected2, multiform.forms[2].as_p())
-
+        self.assertFalse(multiform.forms[1].is_bound)
+        i1 = multiform.forms[1]['i1']
+        self.assertEqual(i1.label, 'I1')
+        self.assertEqual(i1.html_name, 'testmultiform-1-i1')
+        self.assertEqual(i1.name, 'i1')
+        self.assertFalse(multiform.forms[2].is_bound)
+        i2 = multiform.forms[2]['i2']
+        self.assertEqual(i2.label, 'I2')
+        self.assertEqual(i2.html_name, 'testmultiform-2-i2')
+        self.assertEqual(i2.name, 'i2')
