@@ -106,5 +106,8 @@ demo: virtual_env_set pip demodatabase load_demo_fixtures runserver_unsafe
 runserver_unsafe:
 	$(PYTHON_BIN)/django-admin.py runserver $(DJANGO_POSTFIX)
 
+cmd: virtual_env_set
+	$(PYTHON_BIN)/django-admin.py $(CMD) $(DJANGO_POSTFIX)
+
 all: collectstatic refresh
 
