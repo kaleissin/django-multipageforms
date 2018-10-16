@@ -57,8 +57,10 @@ compare:
 	rsync -avz --checksum --dry-run --exclude-from .gitignore --exclude-from .rsyncignore . $(REMOTE_URI)
 
 clean:
+	find . -name "__pycache__" -print0 | xargs -0 rm -rf
 	find . -name "*.pyc" -print0 | xargs -0 rm -rf
 	find . -name "*.egg-info" -print0 | xargs -0 rm -rf
+	find . -name "*.sw?" -print0 | xargs -0 rm -rf
 	-rm -rf demo.sqlite
 	-rm -rf htmlcov
 	-rm -rf .coverage

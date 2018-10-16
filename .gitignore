@@ -3,9 +3,10 @@
 *.pyc
 *.pyo
 *.sqlite
-.*.swp
-.coverage
+.*.sw?
+.coverage*
 .tox
 htmlcov
 dist
+build
 src/demo-media
