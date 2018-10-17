@@ -19,6 +19,7 @@ setup(name='django-multipageforms',
         description='Form wizard is dead, long live multipageforms',
         author_email='kaleissin@gmail.com',
         author='kaleissin',
+        url='https://github.com/kaleissin/django-multipageforms',
         long_description=long_description,
         classifiers=[
                 'Development Status :: 4 - Beta',
