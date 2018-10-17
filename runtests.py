@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import os
 import sys
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'multipageforms.tests.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 sys.path.append('./src')
 
 from django.conf import settings
@@ -19,5 +19,5 @@ if __name__ == "__main__":
         pass
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
-    failures = test_runner.run_tests(["multipageforms"])
+    failures = test_runner.run_tests(["tests"])
     sys.exit(bool(failures))

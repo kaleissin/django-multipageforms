@@ -8,7 +8,6 @@ MIDDLEWARE_CLASSES = ()
 
 INSTALLED_APPS = [
     'multipageforms',
-    'multipageforms.tests',
     'demo.demoapp',
 ]
 

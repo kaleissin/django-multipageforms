@@ -4,7 +4,8 @@ import unittest
 
 from django import test, forms
 
-from ..forms import multiform, multipageform
+from multipageforms.forms import multiform, multipageform
+
 
 class MultiPageFormTest(unittest.TestCase):
 
