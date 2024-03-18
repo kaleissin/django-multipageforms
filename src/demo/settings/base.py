@@ -1,5 +1,6 @@
 import os
 
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 SITE_ROOT = os.path.dirname(PROJECT_ROOT)

@@ -2,6 +2,13 @@
 django-multipageforms Documentation
 ===================================
 
+Compatibility:
+
+0.7.x:
+
+* Python >= 3.8
+* Django >= 3.2
+
 Installation
 ============
 
@@ -41,4 +48,4 @@ You can also test with tox::
     tox
 
 
-:Version: 0.6.0
+:Version: 0.7.0
