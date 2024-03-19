@@ -64,6 +64,7 @@ clean:
 	-rm -rf demo.sqlite
 	-rm -rf htmlcov
 	-rm -rf .coverage
+	-rm -rf .coverage.*
 	-rm -rf build
 	-rm -rf dist
 	-rm -rf docs/_build
