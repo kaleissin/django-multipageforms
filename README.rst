@@ -2,6 +2,10 @@
 django-multipageforms Documentation
 ===================================
 
+.. IMPORTANT:: This project is moth-balled, no further development will happen. Feel free to fork. For control of the package on PyPI try a PEP 541 Request @ PyPI support: https://github.com/pypi/support/issues/new?template=pep541-request.yml
+
+----
+
 Compatibility:
 
 0.7.x:
